@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Produto } from './Produtos/entities/produto.entity';
-import { ProdutoModule } from './Produtos/ProdutoModule';
+import { ProdutoModule } from './Produtos/produto.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CategoriaModule } from './Categorias/CategoriaModule';
+import { CategoriaModule } from './Categorias/categoria.module';
+import { Categoria } from './Categorias/entities/categoria.entity';
 
 @Module({
 
@@ -25,8 +26,8 @@ import { CategoriaModule } from './Categorias/CategoriaModule';
         username: configService.get("DB_USERNAME"),
         password: configService.get("DB_PASSWORD"),
         database: configService.get("DB_DATABASE"),
-        entities: [Produto],
-        synchronize: false,
+        entities: [Produto, Categoria],
+        synchronize: true,
         logging: true,
       }),
     }),
