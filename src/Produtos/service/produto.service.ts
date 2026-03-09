@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Produto } from "../entities/produto.entity";
-import { DeleteResult, ILike, Repository } from "typeorm";
+import { DeleteResult, ILike, LessThan, MoreThan, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CategoriaService } from "../../Categorias/service/categoria.service";
 
@@ -10,35 +10,49 @@ export class ProdutoService {
     constructor(
         @InjectRepository(Produto)
         private produtoRepository: Repository<Produto>,
-        private readonly categoriaService: CategoriaService 
-    ){}
+        private readonly categoriaService: CategoriaService
+    ) { }
 
     async findAll(): Promise<Produto[]> {
         return this.produtoRepository.find();
     }
 
     async findById(id: number): Promise<Produto> {
-        const produto = await this.produtoRepository.findOne({ 
+        const produto = await this.produtoRepository.findOne({
             where: { id },
             relations: { categoria: true }
         })
 
-        if(!produto)
+        if (!produto)
             throw new HttpException("Produto não encontrado", HttpStatus.NOT_FOUND);
-    
+
         return produto;
     }
 
-    async findAllByNome(nome: string): Promise<Produto[]>{
+    async findAllByNome(nome: string): Promise<Produto[]> {
         return this.produtoRepository.find({
-            where: { nome: ILike(`%${nome}%`)},
-            relations: { categoria: true }
+            where: { nome: ILike(`%${nome}%`) },
+            relations: { categoria: true },
+            order: { nome: "ASC", id: "DESC" }
         });
     }
 
-    async findAllByPreco(preco: number): Promise<Produto[]> {
+    async findAllByPreco(): Promise<Produto[]> {
         return this.produtoRepository.find({
-            where: { preco }
+            relations: { categoria: true },
+            order: { preco: "DESC" }
+        });
+    }
+
+    async findAllByPrecoMoreThan(preco: number): Promise<Produto[]> {
+        return this.produtoRepository.find({
+            where: { preco: MoreThan(500) }
+        })
+    }
+
+    async findAllByPrecoLessThan(preco: number): Promise<Produto[]> {
+        return this.produtoRepository.find({
+            where: { preco: LessThan(500) }
         })
     }
 
@@ -48,7 +62,7 @@ export class ProdutoService {
 
     async update(produto: Produto): Promise<Produto> {
 
-        if(!produto.id || produto.id <= 0)
+        if (!produto.id || produto.id <= 0)
             throw new HttpException("Produto inválido", HttpStatus.BAD_REQUEST);
 
         await this.findById(produto.id);
