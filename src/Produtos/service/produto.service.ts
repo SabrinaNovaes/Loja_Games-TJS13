@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Produto } from "../entities/produto.entity";
-import { DeleteResult, ILike, LessThan, MoreThan, Repository } from "typeorm";
+import { Between, DeleteResult, ILike, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CategoriaService } from "../../Categorias/service/categoria.service";
 
@@ -44,16 +44,27 @@ export class ProdutoService {
         });
     }
 
-    async findAllByPrecoMoreThan(preco: number): Promise<Produto[]> {
-        return this.produtoRepository.find({
-            where: { preco: MoreThan(500) }
-        })
-    }
+    async findByPreco(min?: number, max?: number, ordem: "ASC" | "DESC" = "ASC"): Promise<Produto[]> {
 
-    async findAllByPrecoLessThan(preco: number): Promise<Produto[]> {
+        let where = {};
+        let order = {};
+
+        if (min && max) {
+            where = { preco: Between(min, max) };
+            order = { preco: "ASC" }
+        } else if (min) {
+            where = { preco: MoreThanOrEqual(min) };
+            order = { preco: "DESC" }
+        } else if (max) {
+            where = { preco: LessThanOrEqual(max) };
+            order = { preco: "ASC" }
+        }
+
         return this.produtoRepository.find({
-            where: { preco: LessThan(500) }
-        })
+            where,
+            relations: { categoria: true },
+            order: { preco: ordem }
+        });
     }
 
     async create(produto: Produto): Promise<Produto> {
