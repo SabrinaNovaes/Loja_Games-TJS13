@@ -7,6 +7,9 @@ import { ProdutoModule } from './Produtos/produto.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CategoriaModule } from './Categorias/categoria.module';
 import { Categoria } from './Categorias/entities/categoria.entity';
+import { UsuarioModule } from './Usuarios/usuario.module';
+import { AuthModule } from './auth/auth.module';
+import { Usuario } from './Usuarios/entities/usuario.entity';
 
 @Module({
 
@@ -26,13 +29,15 @@ import { Categoria } from './Categorias/entities/categoria.entity';
         username: configService.get("DB_USERNAME"),
         password: configService.get("DB_PASSWORD"),
         database: configService.get("DB_DATABASE"),
-        entities: [Produto, Categoria],
+        entities: [Produto, Categoria, Usuario],
         synchronize: true,
         logging: true,
       }),
     }),
     ProdutoModule,
-    CategoriaModule
+    CategoriaModule,
+    UsuarioModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

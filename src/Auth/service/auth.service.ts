@@ -1,5 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { UsuarioService } from '../../Usuarios/service/usuario.service';
 import { Bcrypt } from '../bcrypt/bcrypt';
 import { UsuarioLogin } from '../entities/usuariologin.service';
 
